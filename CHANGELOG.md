@@ -21,21 +21,73 @@ Adding a requirement of a major version of a dependency is breaking a contract.
 Dropping a requirement of a major version of a dependency is a new contract.
 
 ## [Unreleased]
-[Unreleased]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.3...master
+[Unreleased]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.10...master
+
+## [0.3.10] - 2024-06-13
+[0.3.10]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.8...release-0.3.10
+
+### Fixed
+- Fix race condition between screen recording and stopping container.
+- Wait for sample project key to be filled in before clicking submit.
+
+## [0.3.8] - 2024-01-12
+[0.3.8]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.7...release-0.3.8
+
+### Fixed
+- Fix java installation on MacOS. Aid [JPERF-1454].
+
+[JPERF-1454]: https://ecosystem.atlassian.net/browse/JPERF-1454
+ 
+## [0.3.7] - 2023-09-12
+[0.3.7]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.6...release-0.3.7
+
+### Fixed
+- Use MP4 instead of FLV for video recording for video seek ability [JPERF-836]
+ 
+
+## [0.3.6] - 2022-10-13
+[0.3.6]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.5...release-0.3.6
+
+### Fixed
+- Update Jira license to proper one [JPERF-836]
+
+
+[JPERF-836]: https://ecosystem.atlassian.net/browse/JPERF-836
+
+## [0.3.5] - 2022-10-13
+[0.3.5]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.4...release-0.3.5
+
+### Changed
+- Update Jira license [JPERF-836]
+- Update testcontainers to 1.17.5 as old ryuk image wasn't available in dockerhub anymore
+
+
+[JPERF-836]: https://ecosystem.atlassian.net/browse/JPERF-836
+
+## [0.3.4] - 2022-04-10
+[0.3.4]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.3...release-0.3.4
+
+### Fixed
+- Bump log4j dependency to 2.17.2. Fix [JPERF-773]
+
+[JPERF-773]: https://ecosystem.atlassian.net/browse/JPERF-773
 
 ## [0.3.3] - 2020-02-20
 [0.3.3]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.2...release-0.3.3
+
 ### Fixed
 - Updated Ubuntu to the 2020 LTS version
 
 ## [0.3.2] - 2020-02-06
 [0.3.2]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.1...release-0.3.2
+
 ### Fixed
 - Added support for Jira Software
 - updated Testing Containers
 
 ## [0.3.1] - 2020-02-03
 [0.3.1]: https://github.com/atlassian/docker-infrastructure/compare/release-0.3.0...release-0.3.1
+
 ### Fixed
 - Upgraded Selenium to 3.141.59
 - A lot of stability fixes

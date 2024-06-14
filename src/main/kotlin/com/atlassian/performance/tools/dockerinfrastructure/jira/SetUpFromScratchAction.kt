@@ -1,11 +1,16 @@
 package com.atlassian.performance.tools.dockerinfrastructure.jira
 
-import org.openqa.selenium.*
+import org.openqa.selenium.By
+import org.openqa.selenium.ElementNotInteractableException
+import org.openqa.selenium.StaleElementReferenceException
+import org.openqa.selenium.WebDriver
 import org.openqa.selenium.support.ui.ExpectedCondition
-import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.ExpectedConditions.*
 import org.openqa.selenium.support.ui.WebDriverWait
 import java.net.URI
 import java.time.Duration
+import java.time.Duration.ofMinutes
+import java.time.Duration.ofSeconds
 
 
 /**
@@ -32,16 +37,15 @@ internal class SetUpFromScratchAction(
     private fun waitForJira() {
         driver.wait(
             condition = ExpectedCondition {
-                it!!
-                return@ExpectedCondition try {
-                    it.navigate().to(uri.toURL())
-                    it.findElements(By.id("jira")).firstOrNull()
+                try {
+                    it?.navigate()?.to(uri.toURL())
+                    it?.findElements(By.id("jira"))?.firstOrNull()
                 } catch (e: Exception) {
                     null
                 }
             },
-            timeout = Duration.ofMinutes(15),
-            precision = Duration.ofSeconds(4)
+            timeout = ofMinutes(15),
+            precision = ofSeconds(4)
         )
     }
 
@@ -59,41 +63,36 @@ internal class SetUpFromScratchAction(
     }
 
     /**
-     *  Uses "10 user starter non-eval host product license, expires in 3 hours" license
-     *  from https://developer.atlassian.com/platform/marketplace/timebomb-licenses-for-testing-server-apps/.
+     *  Uses "10 user Jira Software Data Center license, expires in 3 hours" license
+     *  from https://developer.atlassian.com/platform/marketplace/timebomb-licenses-for-testing-server-apps/
      */
     private fun setupLicense() {
-        val timebombLicense = """
-            AAABiQ0ODAoPeNp1kk9TwjAQxe/9FJnxXKYpeoCZHqCtgsqfgaIO4yWELURD0tm0KN/eWOjYdvD68
-            vbtb3dzM9GKTBgS2iOU9n3a7/pkHiXE96jvbNhho3XnWXBQBuKtyIVWQTxN4sV8MV7GTirMHk5QO
-            ZJTBsG91eITvPdJBEeQOgN0uNRHwIYtLKWGa1ocNoCzdGUATUA9h2uVdhjPxRGCHAtw5gXyPTMQs
-            RwCn1Lf9XzXv3NqwVN2gGCZDBYWstLj70zgqSyad0fVWPXgJaClGUfB8KGXuG+rl1v3ab0euUOPv
-            jofAlmD/XG8GJBY5YAZCtMa9Ze5MagVZAGKX/FVE4eyMDZtqrdgAq+19zJlWEr/Na0TXjkTx4KLj
-            WzeKbyIjaAJE7aDYpa2tTSO+mvbCrBKo/ryate4Up9KfylnhjumhGEl0SCXzBjB1B9Q/QYhQulrH
-            /fcue6svl1di8BwFFnZKAGTE3mGIalGksliJxTZVqTmvLF6fXxksjhzpkwaqP5s3fMDBMYhRDAtA
-            hUAhcR3uL05YCxbclq7h1dNa+Nc+j4CFBrdN005oVlMN9yBlWeM4TlnrOhqX02j3"""
+        val timeBombLicense = """
+AAAB8w0ODAoPeNp9Uk2P2jAQvedXWOoNydmELVKLFKlL4u7SLglKQj+27cEkA3gb7GjssMu/rwnQl
+s9DDvHMvPfmvXmTN0BGfE08n3jdftfv927J/SgnXc9/58wRQC5UXQO6j6IAqYGVwgglAxbnLB2nw
+4w5cbOcAiaziQbUge85oZKGFybmSwjKmiMKvfjATcW1Fly6hVo64waLBdcQcQPBhot6Per5zo4lX
+9fQjofJaMTScHj3uC+x11rgup0b3z7sudiIi+oSWQa4AhxGweD+fU6/Tb68pZ+fnh7owPO/Os8Cu
+VujKpvCuJsfqtXMvHAE1+KKFQQGG3A+2cp412XJeQjSHLVkzVQXKOrWn/bljH/nNmslXPa30+nES
+U4/Jikdp0k0CfNhEtNJxmwhCBGsFSWZrolZANmhECYLVQISu9gzFIb8WBhT/+zf3MyVe2DOTbWdo
+LCd+OWSSBGpDCmFNiimjQGLLDQxihSNNmppU3Yd67c0ILksjhOxqsKU3eUsooPvG4kXUrli/MlF7
+dayEU7kb6lepJOxOLAf7XneFmkfCuCp95nh+LdwhfegL8E5l0LzNo4IVlApi0Vy0GZvs9O6b+vHZ
+xzBv0toB3Yuk5lCwuualHs8fSD0/3NqdZ48nBd+5bjYilfNdokZr6zmP7TmY5YwLAIUNq8MbmR8G
+faV9ulfLz1K+3g9j1YCFDeq7aYROMQbwMIvHimNt7/bJCCIX02nj"""
             .trimIndent()
-        val licenseKeyLocator = By.id("licenseKey")
-        val licenceKeyInput = 
-            driver.wait(Duration.ofMinutes(2), ExpectedConditions.elementToBeClickable(licenseKeyLocator))
-        licenceKeyInput.click()
-        licenceKeyInput.sendKeys(timebombLicense)
+        driver.wait(ofMinutes(2), elementToBeClickable(By.id("licenseKey"))).let {
+            it.click()
+            it.sendKeys(timeBombLicense)
+        }
         clickAndAwaitTransition(By.className("aui-button-primary"))
     }
 
     private fun setupAdministratorAccount() {
-        val fullnameLocator = By.cssSelector("input[name='fullname']")
-        val emailLocator = By.cssSelector("input[name='email']")
-        val usernameLocator = By.cssSelector("input[name='username']")
-        val passwordLocator = By.cssSelector("input[name='password']")
-        val confirmLocator = By.cssSelector("input[name='confirm']")
-
-        driver.wait(Duration.ofMinutes(3), ExpectedConditions.visibilityOfElementLocated(fullnameLocator))
-        driver.findElement(fullnameLocator).sendKeys("Admin Fixer")
-        driver.findElement(emailLocator).sendKeys("admin@fixer.com")
-        driver.findElement(usernameLocator).sendKeys("admin")
-        driver.findElement(passwordLocator).sendKeys("admin")
-        driver.findElement(confirmLocator).sendKeys("admin")
+        driver.wait(ofMinutes(3), visibilityOfElementLocated(By.cssSelector("input[name='fullname']")))
+        driver.findElement(By.cssSelector("input[name='fullname']")).sendKeys("Admin Fixer")
+        driver.findElement(By.cssSelector("input[name='email']")).sendKeys("admin@fixer.com")
+        driver.findElement(By.cssSelector("input[name='username']")).sendKeys("admin")
+        driver.findElement(By.cssSelector("input[name='password']")).sendKeys("admin")
+        driver.findElement(By.cssSelector("input[name='confirm']")).sendKeys("admin")
         driver.findElement(By.id("jira-setupwizard-submit")).click()
     }
 
@@ -113,26 +112,24 @@ internal class SetUpFromScratchAction(
         waitAndClick(By.id("sampleData"))
         waitAndClick(By.className("create-project-dialog-create-button"))
 
-        val projectNameInputLocator = By.id("name")
-        driver.wait(Duration.ofMinutes(1), ExpectedConditions.visibilityOfElementLocated(projectNameInputLocator))
-        driver.findElement(projectNameInputLocator).sendKeys("Sample")
+        driver.wait(ofSeconds(10), visibilityOfElementLocated(By.cssSelector("form#add-project-form")))
+        driver.wait(ofMinutes(1), elementToBeClickable(By.cssSelector("input[name='name']"))).sendKeys("Sample")
+        driver.wait(ofMinutes(1), elementToBeClickable(By.cssSelector("input[name='key']")))
 
-        val addProjectButtonLocator = By.className("add-project-dialog-create-button")
-        driver.wait(Duration.ofMinutes(10), ExpectedConditions.elementToBeClickable(addProjectButtonLocator))
-        driver.findElement(addProjectButtonLocator).click()
+        waitAndClick(By.className("add-project-dialog-create-button"), ofMinutes(10))
 
         cleanErrorMessages()
     }
 
     private fun cleanErrorMessages() {
-        driver.wait(Duration.ofMinutes(10), ExpectedConditions.visibilityOfElementLocated(By.className("subnavigator-title")))
+        driver.wait(ofMinutes(10), visibilityOfElementLocated(By.className("subnavigator-title")))
         val slideOutTime = Duration.ofMillis(1000)
-        for (i in 1..10) {
+        repeat(10) {
             val closeButtons = driver
                 .findElements(By.className("icon-close"))
                 .filter { it.isDisplayed && it.isEnabled }
             if (closeButtons.isEmpty()) {
-                break
+                return@repeat
             } else {
                 try {
                     closeButtons.first().click()
@@ -143,17 +140,16 @@ internal class SetUpFromScratchAction(
         }
     }
 
-    private fun waitAndClick(by: By, timeout: Duration = Duration.ofMinutes(5)) {
-        driver.wait(timeout, ExpectedConditions.elementToBeClickable(by))
-            .click()
+    private fun waitAndClick(by: By, timeout: Duration = ofMinutes(5)) {
+        driver.wait(timeout, elementToBeClickable(by)).click()
     }
-    
-    private fun clickAndAwaitTransition(by: By, timeout: Duration = Duration.ofMinutes(5)) {
-        val clickable = driver.wait(timeout, ExpectedConditions.elementToBeClickable(by))
+
+    private fun clickAndAwaitTransition(by: By, timeout: Duration = ofMinutes(5)) {
+        val clickable = driver.wait(timeout, elementToBeClickable(by))
         clickable.click()
-        val initialTimeout = Duration.ofSeconds(10)
+        val initialTimeout = ofSeconds(10)
         try {
-            driver.wait(initialTimeout, ExpectedConditions.stalenessOf(clickable))
+            driver.wait(initialTimeout, stalenessOf(clickable))
         } catch (e: Exception) {
             try {
                 //this both resends the click and executes a staleness check better than stalenessOf
@@ -162,7 +158,7 @@ internal class SetUpFromScratchAction(
                 // click can happen on a stale element
                 return
             }
-            driver.wait(timeout, ExpectedConditions.stalenessOf(clickable))
+            driver.wait(timeout, stalenessOf(clickable))
         }
     }
 }
